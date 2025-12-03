@@ -14,19 +14,24 @@ import {
   ArrowRight,
   Sun,
   Moon,
+  Sparkles,
+  Rocket,
+  Code,
+  GraduationCap,
 } from "lucide-react";
 
 // إصلاح مشكلة الهيدريشن: إنشاء النقاط خارج المكون
 const generateDotsData = () => {
   const dots = [];
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 25; i++) {
     dots.push({
       id: i,
-      size: Math.random() * 3 + 1,
+      size: Math.random() * 4 + 1,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      opacity: 0.2 + Math.random() * 0.3,
-      duration: 3 + Math.random() * 2,
+      opacity: 0.1 + Math.random() * 0.4,
+      duration: 4 + Math.random() * 3,
+      speed: 0.5 + Math.random() * 1,
     });
   }
   return dots;
@@ -41,8 +46,8 @@ const MovingDotsBackground = ({ darkMode }) => {
       {/* Base gradient */}
       <div className={`absolute inset-0 ${
         darkMode
-          ? 'bg-gradient-to-br from-[#2D3138] via-[#3A3F49] to-[#2D3138]'
-          : 'bg-gradient-to-br from-[#F5E9E4] via-[#F0E0D9] to-[#FAF3F0]'
+          ? 'bg-gradient-to-br from-[#0F1419] via-[#1A1F2E] to-[#252A3A]'
+          : 'bg-gradient-to-br from-[#FFFFFF] via-[#F8F9FA] to-[#F0F2F5]'
       }`} />
 
       {/* Animated dots - استخدام البيانات الثابتة */}
@@ -56,11 +61,12 @@ const MovingDotsBackground = ({ darkMode }) => {
             left: `${dot.x}%`,
             top: `${dot.y}%`,
             backgroundColor: darkMode
-              ? `rgba(169, 155, 194, ${dot.opacity})`
-              : `rgba(201, 183, 210, ${dot.opacity})`,
+              ? `rgba(167, 139, 250, ${dot.opacity})`
+              : `rgba(123, 58, 237, ${dot.opacity * 0.6})`,
             filter: 'blur(1px)',
-            animationDelay: `${dot.id * 0.2}s`,
+            animationDelay: `${dot.id * 0.1}s`,
             animationDuration: `${dot.duration}s`,
+            animationTimingFunction: `cubic-bezier(0.4, 0, 0.2, 1)`,
           }}
         />
       ))}
@@ -69,10 +75,9 @@ const MovingDotsBackground = ({ darkMode }) => {
 };
 
 // Separate constants
-const SECTIONS = [ "process", "benefits"];
+const SECTIONS = ["process", "benefits"];
 
 const TRANSLATIONS = {
- 
   process: { en: "Process", ar: "العملية" },
   benefits: { en: "Benefits", ar: "الفوائد" }
 };
@@ -131,12 +136,12 @@ const STAGES = [
 ];
 
 const BENEFITS = [
-  { en: "Personalized career path selection", ar: "مسار مهني مخصص" },
-  { en: "Complete professional profile setup", ar: "إعداد ملف مهني كامل" },
-  { en: "Job search strategy training", ar: "تدريب على استراتيجية البحث عن عمل" },
-  { en: "Interview preparation & practice", ar: "تحضير وممارسة للمقابلات" },
-  { en: "Ongoing mentorship & support", ar: "إرشاد ودعم مستمر" },
-  { en: "Portfolio & GitHub optimization", ar: "تحسين البورتفوليو وGitHub" },
+  { en: "Personalized career path selection", ar: "مسار مهني مخصص", icon: Target },
+  { en: "Complete professional profile setup", ar: "إعداد ملف مهني كامل", icon: Users },
+  { en: "Job search strategy training", ar: "تدريب على استراتيجية البحث عن عمل", icon: Briefcase },
+  { en: "Interview preparation & practice", ar: "تحضير وممارسة للمقابلات", icon: MessageSquare },
+  { en: "Ongoing mentorship & support", ar: "إرشاد ودعم مستمر", icon: TrendingUp },
+  { en: "Portfolio & GitHub optimization", ar: "تحسين البورتفوليو وGitHub", icon: Code },
 ];
 
 export default function LAVQLanding() {
@@ -148,9 +153,18 @@ export default function LAVQLanding() {
   const [useAnimation, setUseAnimation] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [animateElements, setAnimateElements] = useState(false);
+  const [typedText, setTypedText] = useState("");
+  const [charIndex, setCharIndex] = useState(0);
 
   const animationFrameRef = useRef(null);
   const sectionsRef = useRef([]);
+  const heroRef = useRef(null);
+
+  // Typing animation effect
+  const typingTexts = [
+    "Launch Your Programming Career",
+    "أطلق مسيرتك في البرمجة"
+  ];
 
   // Initialize client-side
   useEffect(() => {
@@ -160,6 +174,28 @@ export default function LAVQLanding() {
       setAnimateElements(true);
     }, 300);
   }, []);
+
+  // Typing animation
+  useEffect(() => {
+    if (!isClient) return;
+
+    const currentText = isArabic ? typingTexts[1] : typingTexts[0];
+    
+    if (charIndex < currentText.length) {
+      const timeout = setTimeout(() => {
+        setTypedText(currentText.substring(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      }, 50);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [charIndex, isArabic, isClient]);
+
+  // Reset typing when language changes
+  useEffect(() => {
+    setTypedText("");
+    setCharIndex(0);
+  }, [isArabic]);
 
   // Simple scroll animation handler
   useEffect(() => {
@@ -293,9 +329,10 @@ export default function LAVQLanding() {
       accent: "#7C3AED",
       accentHover: "#6B21A8",
       shadow: "rgba(0, 0, 0, 0.1)",
+      shadowStrong: "rgba(0, 0, 0, 0.15)",
       cardBg: "#FFFFFF",
-      gradient: "from-[#FFFFFF] via-[#F8F9FA] to-[#F0F2F5]",
-      logoFilter: "none", // لا فلتر في الوضع الفاتح
+      gradient: "linear-gradient(135deg, #7C3AED 0%, #6B21A8 100%)",
+      logoFilter: "none",
     },
     // Dark mode colors - High contrast for readability
     dark: {
@@ -308,82 +345,94 @@ export default function LAVQLanding() {
       border: "#374151",
       accent: "#A78BFA",
       accentHover: "#C4B5FD",
-      shadow: "rgba(0, 0, 0, 0.5)",
+      shadow: "rgba(0, 0, 0, 0.3)",
+      shadowStrong: "rgba(0, 0, 0, 0.5)",
       cardBg: "#1F2937",
-      gradient: "from-[#0F1419] via-[#1A1F2E] to-[#252A3A]",
-      logoFilter: "brightness(0) invert(1) drop-shadow(0 0 8px rgba(167, 139, 250, 0.5))", // جعل اللوغو أبيض مع تأثير توهج
+      gradient: "linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%)",
+      logoFilter: "brightness(0) invert(1) drop-shadow(0 0 12px rgba(167, 139, 250, 0.6))",
     }
   }), [darkMode]);
 
-// Render Stage Item component
-const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
-  const Icon = stage.icon;
-  const colors = darkModeStyles[darkMode ? 'dark' : 'light'];
+  // Render Stage Item component
+  const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
+    const Icon = stage.icon;
+    const colors = darkModeStyles[darkMode ? 'dark' : 'light'];
 
-  return (
-    <div 
-      dir={isArabic ? "rtl" : "ltr"}
-      className={`scroll-animate p-8 rounded-2xl border transition-all duration-300 hover:shadow-xl hover:border-[#A78BFA]/40`}
-      style={{
-        backgroundColor: colors.cardBg,
-        borderColor: colors.border,
-      }}
-    >
-      <div className="flex gap-6">
-        {/* Icon Container - Always on the correct side based on language */}
-        <div className={`
-          w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0
-          ${isArabic ? 'order-2' : 'order-1'}
-        `} style={{
-          background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentHover})`,
-        }}>
-          <Icon className="w-8 h-8 text-white" />
-        </div>
+    return (
+      <div 
+        dir={isArabic ? "rtl" : "ltr"}
+        className={`scroll-animate p-8 rounded-3xl border transition-all duration-500 hover:shadow-2xl hover:border-[#A78BFA]/60 hover:-translate-y-1`}
+        style={{
+          backgroundColor: colors.cardBg,
+          borderColor: colors.border,
+          boxShadow: `0 10px 40px ${colors.shadow}`,
+        }}
+      >
+        <div className="flex gap-6">
+          {/* Icon Container */}
+          <div className={`
+            w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0
+            ${isArabic ? 'order-2' : 'order-1'}
+          `} style={{
+            background: colors.gradient,
+            boxShadow: `0 10px 30px ${darkMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(123, 58, 237, 0.2)'}`,
+          }}>
+            <div className="absolute text-white/20 font-bold text-4xl -bottom-2 -right-2">
+              {stage.number}
+            </div>
+            <Icon className="w-10 h-10 text-white relative z-10" />
+          </div>
 
-        {/* Content Container */}
-        <div className={`flex-1 ${isArabic ? 'order-1 text-right' : 'order-2 text-left'}`}>
-          {/* Title */}
-          <h3 className={`text-2xl font-bold mb-2`} style={{ color: colors.textPrimary }}>
-            {isArabic ? stage.title_ar : stage.title_en}
-          </h3>
-          
-          {/* Description */}
-          <p className={`mb-4`} style={{ color: colors.textSecondary }}>
-            {isArabic ? stage.description_ar : stage.description_en}
-          </p>
+          {/* Content Container */}
+          <div className={`flex-1 ${isArabic ? 'order-1 text-right' : 'order-2 text-left'}`}>
+            {/* Title */}
+            <h3 className={`text-2xl font-bold mb-3`} style={{ color: colors.textPrimary }}>
+              {isArabic ? stage.title_ar : stage.title_en}
+            </h3>
+            
+            {/* Description */}
+            <p className={`mb-6 text-lg`} style={{ color: colors.textSecondary }}>
+              {isArabic ? stage.description_ar : stage.description_en}
+            </p>
 
-          {/* Features Grid */}
-          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2`}>
-            {(isArabic ? stage.features_ar : stage.features_en).map((f, i) => (
-              <div 
-                key={i} 
-                className={`flex items-center gap-2 ${isArabic ? 'flex-row-reverse' : ''}`}
-              >
-                <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: colors.accent }} />
-                <span style={{ color: colors.textSecondary }}>{f}</span>
-              </div>
-            ))}
+            {/* Features Grid */}
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3`}>
+              {(isArabic ? stage.features_ar : stage.features_en).map((f, i) => (
+                <div 
+                  key={i} 
+                  className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''} p-2 rounded-lg`}
+                  style={{ backgroundColor: `${colors.border}10` }}
+                >
+                  <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: colors.accent }} />
+                  <span style={{ color: colors.textSecondary }}>{f}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  });
 
   StageItem.displayName = 'StageItem';
 
   // Render Benefit Item component
   const BenefitItem = React.memo(({ benefit, index, isArabic, darkMode }) => {
     const colors = darkModeStyles[darkMode ? 'dark' : 'light'];
+    const Icon = benefit.icon;
     
     return (
-      <div className={`flex gap-3 items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
-        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{
-          background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentHover})`,
+      <div className={`flex gap-4 items-center p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg`}
+        style={{
+          backgroundColor: colors.cardBg,
+          border: `1px solid ${colors.border}`,
         }}>
-          <ChevronRight className="text-white w-4" />
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{
+          background: colors.gradient,
+        }}>
+          <Icon className="w-6 h-6 text-white" />
         </div>
-        <span className={`text-lg`} style={{ color: colors.textSecondary }}>
+        <span className={`text-lg font-medium flex-1 ${isArabic ? 'text-right' : 'text-left'}`} style={{ color: colors.textPrimary }}>
           {isArabic ? benefit.ar : benefit.en}
         </span>
       </div>
@@ -397,7 +446,7 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px);
       }
       to {
         opacity: 1;
@@ -407,16 +456,16 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
     
     @keyframes float {
       0%, 100% { 
-        transform: translate(0, 0) rotate(0deg); 
-        opacity: 0.6;
+        transform: translate(0, 0) scale(1); 
+        opacity: 0.4;
       }
       33% { 
-        transform: translate(3px, -2px) rotate(1deg); 
-        opacity: 0.8;
+        transform: translate(5px, -3px) scale(1.05); 
+        opacity: 0.6;
       }
       66% { 
-        transform: translate(-2px, 1px) rotate(-1deg); 
-        opacity: 0.7;
+        transform: translate(-3px, 2px) scale(0.95); 
+        opacity: 0.5;
       }
     }
     
@@ -429,20 +478,76 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
       }
     }
     
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+      }
+    }
+    
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1 }
+      50% { opacity: 0 }
+    }
+    
     .animate-fadeInUp {
-      animation: fadeInUp 0.8s ease-out forwards;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     
     .animate-float {
-      animation: float 6s ease-in-out infinite;
+      animation: float 8s ease-in-out infinite;
     }
     
     .animate-fadeIn {
       animation: fadeIn 0.8s ease-out forwards;
     }
     
+    .animate-slideInLeft {
+      animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .animate-slideInRight {
+      animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .animate-pulse-glow {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
     .nav-scroll {
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     
     .scroll-animate {
@@ -469,6 +574,15 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
       animation: fadeInUp 0.8s ease-out 0.8s forwards;
       opacity: 0;
     }
+    
+    /* Custom cursor effect */
+    .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      margin-left: 2px;
+      animation: blink 1s infinite;
+    }
   `;
 
   // Get current color scheme
@@ -479,32 +593,34 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
       <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       
       <div 
-        className={`${darkMode ? 'dark' : ''} min-h-screen transition-colors duration-300`}
+        className={`${darkMode ? 'dark' : ''} min-h-screen transition-colors duration-500`}
         style={{
           background: `linear-gradient(135deg, ${colors.bgPrimary}, ${colors.bgSecondary}, ${colors.bgTertiary})`,
         }}
       >
         {/* NAVBAR */}
         <nav 
-          className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'nav-scroll shadow-lg' : 'bg-transparent'} border-b`}
+          className={`fixed w-full z-50 transition-all duration-500 ${isScrolled ? 'nav-scroll shadow-2xl' : 'bg-transparent'} border-b`}
           style={{
-            backgroundColor: isScrolled ? `${colors.cardBg}95` : 'transparent',
-            borderColor: colors.border,
-            boxShadow: isScrolled ? `0 4px 20px ${colors.shadow}` : 'none',
+            backgroundColor: isScrolled ? `${colors.cardBg}98` : 'transparent',
+            borderColor: isScrolled ? colors.border : 'transparent',
+            boxShadow: isScrolled ? `0 8px 32px ${colors.shadowStrong}` : 'none',
+            backdropFilter: isScrolled ? 'blur(12px)' : 'none',
+            WebkitBackdropFilter: isScrolled ? 'blur(12px)' : 'none',
           }}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              {/* Logo مع فلتر لتحسين الرؤية في الوضع الداكن */}
+            <div className="flex justify-between items-center h-20">
+              {/* Logo */}
               <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                <div className="w-32">
+                <div className="w-36 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#A78BFA] to-[#7C3AED] opacity-20 blur-xl rounded-full"></div>
                   <img 
                     src="/lavq.png" 
                     alt="LAVQ" 
-                    className="w-full h-auto transition-all duration-300"
+                    className="w-full h-auto transition-all duration-500 relative z-10"
                     style={{
                       filter: colors.logoFilter,
-                      transform: darkMode ? 'scale(1.1)' : 'scale(1)',
                     }}
                     loading="lazy" 
                   />
@@ -512,40 +628,49 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
               </div>
 
               {/* Desktop menu */}
-              <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
+              <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
                 {SECTIONS.map((sec) => (
                   <button
                     key={sec}
                     onClick={() => handleScrollTo(sec)}
-                    className={`transition-all duration-300 ${activeSection === sec
-                      ? 'font-semibold'
+                    className={`relative py-2 px-1 transition-all duration-300 ${activeSection === sec
+                      ? 'font-bold'
                       : 'hover:opacity-80'}`}
                     style={{
                       color: activeSection === sec ? colors.accent : colors.textSecondary,
                     }}
                   >
                     {t(TRANSLATIONS[sec].en, TRANSLATIONS[sec].ar)}
+                    {activeSection === sec && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full animate-pulse-glow"
+                        style={{ background: colors.gradient }} />
+                    )}
                   </button>
                 ))}
 
                 <button 
                   onClick={goToRegister} 
-                  className="px-5 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+                  className="px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 relative overflow-hidden group"
                   style={{
-                    background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentHover})`,
+                    background: colors.gradient,
                     color: 'white',
+                    boxShadow: `0 10px 30px ${darkMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(123, 58, 237, 0.2)'}`,
                   }}
                 >
-                  {t("Start Now", "ابدأ الآن")}
+                  <span className="relative z-10 flex items-center gap-2">
+                    {t("Start Now", "ابدأ الآن")}
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-100 transition-transform duration-500"></div>
                 </button>
 
                 <button 
                   onClick={goToInstagram} 
-                  className="px-4 py-2 rounded-md font-medium transition-all duration-300 border"
+                  className="px-5 py-2.5 rounded-xl font-medium transition-all duration-300 border hover:scale-105"
                   style={{
-                    backgroundColor: darkMode ? `${colors.accent}20` : `${colors.bgTertiary}`,
-                    borderColor: darkMode ? `${colors.accent}30` : colors.border,
-                    color: darkMode ? colors.textAccent : colors.accent,
+                    backgroundColor: darkMode ? `${colors.accent}15` : `${colors.accent}5`,
+                    borderColor: darkMode ? `${colors.accent}30` : `${colors.accent}20`,
+                    color: colors.accent,
                   }}
                 >
                   {t("Contact Us", "تواصل معنا")}
@@ -554,30 +679,44 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
                 {/* language */}
                 <button 
                   onClick={toggleArabic} 
-                  className="px-3 py-1 rounded transition-colors duration-300"
+                  className="w-10 h-10 rounded-xl transition-all duration-300 hover:scale-110 relative overflow-hidden group"
                   style={{
                     backgroundColor: colors.cardBg,
                     color: colors.textPrimary,
+                    boxShadow: `0 4px 16px ${colors.shadow}`,
                   }}
                 >
-                  <span>{isArabic ? "EN" : "AR"}</span>
+                  <span className="font-semibold relative z-10">{isArabic ? "EN" : "AR"}</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-100 transition-transform duration-700"></div>
                 </button>
 
                 {/* dark mode */}
                 <button 
                   onClick={toggleDarkMode} 
-                  className="p-2 rounded-full transition-colors duration-300"
+                  className="w-10 h-10 rounded-xl transition-all duration-300 hover:scale-110"
                   style={{
                     backgroundColor: colors.cardBg,
+                    boxShadow: `0 4px 16px ${colors.shadow}`,
                   }}
                 >
-                  {darkMode ? <Sun className="w-5 h-5" style={{ color: colors.textAccent }} /> : <Moon className="w-5 h-5" style={{ color: colors.textSecondary }} />}
+                  {darkMode ? 
+                    <Sun className="w-5 h-5 mx-auto" style={{ color: '#FBBF24' }} /> : 
+                    <Moon className="w-5 h-5 mx-auto" style={{ color: colors.textSecondary }} />
+                  }
                 </button>
               </div>
 
               {/* mobile toggle */}
               <div className="md:hidden">
-                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: colors.textPrimary }}>
+                <button 
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{
+                    backgroundColor: colors.cardBg,
+                    color: colors.textPrimary,
+                    boxShadow: `0 4px 16px ${colors.shadow}`,
+                  }}
+                >
                   {mobileMenuOpen ? <X /> : <Menu />}
                 </button>
               </div>
@@ -587,21 +726,23 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
           {/* mobile menu */}
           {mobileMenuOpen && (
             <div 
-              className="md:hidden px-4 py-4 shadow-lg border-t"
+              className="md:hidden px-4 py-6 shadow-2xl border-t"
               style={{
                 backgroundColor: colors.cardBg,
                 borderColor: colors.border,
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
               }}
             >
               {SECTIONS.map((sec) => (
                 <button
                   key={sec}
                   onClick={() => handleScrollTo(sec)}
-                  className={`block w-full text-left px-2 py-2 rounded ${activeSection === sec
-                    ? 'font-semibold'
-                    : ''}`}
+                  className={`block w-full text-left px-4 py-3 rounded-xl my-1 transition-all duration-300 ${activeSection === sec
+                    ? 'font-bold' : ''}`}
                   style={{
                     color: activeSection === sec ? colors.accent : colors.textSecondary,
+                    backgroundColor: activeSection === sec ? `${colors.accent}10` : 'transparent',
                   }}
                 >
                   {t(TRANSLATIONS[sec].en, TRANSLATIONS[sec].ar)}
@@ -610,10 +751,11 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
 
               <button 
                 onClick={goToRegister} 
-                className="w-full mt-3 px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+                className="w-full mt-4 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02]"
                 style={{
-                  background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentHover})`,
+                  background: colors.gradient,
                   color: 'white',
+                  boxShadow: `0 8px 24px ${darkMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(123, 58, 237, 0.2)'}`,
                 }}
               >
                 {t("Start Now", "ابدأ الآن")}
@@ -621,42 +763,48 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
 
               <button 
                 onClick={goToInstagram} 
-                className={`w-full mt-2 px-4 py-2 rounded-lg transition-colors duration-300`}
+                className={`w-full mt-3 px-4 py-3 rounded-xl transition-all duration-300 hover:scale-[1.02]`}
                 style={{
                   backgroundColor: colors.bgTertiary,
                   color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
                 }}
               >
                 {t("Contact Us", "تواصل معنا")}
               </button>
 
-              <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center justify-between mt-6">
                 <button 
                   onClick={toggleArabic} 
-                  className="px-3 py-1 rounded"
+                  className="px-4 py-2 rounded-xl font-semibold"
                   style={{
                     backgroundColor: colors.cardBg,
                     color: colors.textPrimary,
+                    boxShadow: `0 4px 16px ${colors.shadow}`,
                   }}
                 >
-                  <span>{isArabic ? "EN" : "AR"}</span>
+                  {isArabic ? "EN" : "AR"}
                 </button>
                 <button 
                   onClick={toggleDarkMode} 
-                  className="p-2 rounded-full"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{
                     backgroundColor: colors.cardBg,
+                    boxShadow: `0 4px 16px ${colors.shadow}`,
                   }}
                 >
-                  {darkMode ? <Sun className="w-5 h-5" style={{ color: colors.textAccent }} /> : <Moon className="w-5 h-5" style={{ color: colors.textSecondary }} />}
+                  {darkMode ? 
+                    <Sun className="w-5 h-5" style={{ color: '#FBBF24' }} /> : 
+                    <Moon className="w-5 h-5" style={{ color: colors.textSecondary }} />
+                  }
                 </button>
               </div>
             </div>
           )}
         </nav>
 
-        {/* HERO - Content visible from start */}
-        <section id="hero" className="relative w-full h-screen overflow-hidden">
+        {/* HERO SECTION - Enhanced with animations */}
+        <section id="hero" className="relative w-full h-screen overflow-hidden" ref={heroRef}>
           {/* Background */}
           {useAnimation && isClient ? (
             <MovingDotsBackground darkMode={darkMode} />
@@ -669,44 +817,76 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
             />
           )}
 
-          {/* Subtle overlay */}
-          <div className={`absolute inset-0 ${darkMode ? 'bg-black/30' : 'bg-white/20'}`}></div>
+          {/* Animated floating elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[Rocket, Code, GraduationCap, Sparkles].map((Icon, index) => (
+              <div
+                key={index}
+                className="absolute animate-float"
+                style={{
+                  left: `${20 + index * 20}%`,
+                  top: `${30 + index * 10}%`,
+                  animationDelay: `${index * 1.5}s`,
+                  animationDuration: `${8 + index * 2}s`,
+                }}
+              >
+                <Icon className="w-8 h-8 opacity-20" style={{ color: colors.accent }} />
+              </div>
+            ))}
+          </div>
 
-          {/* Hero content - NO opacity: 0, using animation classes */}
+          {/* Hero content */}
           <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
+            {/* Animated badge */}
             <div 
-              className={`hero-badge inline-block mb-4 px-4 py-2 border rounded-full`}
+              className={`hero-badge inline-flex items-center gap-2 mb-6 px-6 py-3 border rounded-full backdrop-blur-sm`}
               style={{
-                backgroundColor: darkMode ? `${colors.accent}10` : colors.bgTertiary,
-                borderColor: darkMode ? `${colors.accent}20` : colors.border,
+                backgroundColor: darkMode ? `${colors.accent}15` : `${colors.accent}10`,
+                borderColor: darkMode ? `${colors.accent}30` : `${colors.accent}20`,
+                boxShadow: `0 8px 32px ${colors.shadow}`,
               }}
             >
+              <Sparkles className="w-4 h-4" style={{ color: colors.accent }} />
               <span 
                 className={`text-sm font-semibold`}
                 style={{
-                  color: colors.textAccent,
+                  color: colors.accent,
                 }}
               >
                 {t("Transform Your Career Journey", "حوّل رحلتك المهنية")}
               </span>
             </div>
 
-            <h1 className={`hero-title text-4xl sm:text-5xl md:text-6xl font-bold mb-4`} style={{ color: colors.textPrimary }}>
-              {t("Launch Your Programming Career", "أطلق مسيرتك في البرمجة")}
-              <span 
-                className="block mt-2 bg-clip-text text-transparent"
-                style={{
-                  background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                {t("With Confidence", "بثقة")}
-              </span>
-            </h1>
+            {/* Main title with typing effect */}
+            <div className="relative mb-6">
+              <h1 className={`hero-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-4 leading-tight`} style={{ color: colors.textPrimary }}>
+                <span style={{ display: 'inline-block' }}>
+                  {typedText}
+                  {charIndex < (isArabic ? typingTexts[1] : typingTexts[0]).length && (
+                    <span className="cursor" style={{ backgroundColor: colors.accent }}></span>
+                  )}
+                </span>
+              </h1>
+              
+              {/* Gradient subtitle without line */}
+              <div className="relative">
+                <span 
+                  className="block text-3xl sm:text-4xl md:text-5xl font-bold mt-6 bg-clip-text text-transparent"
+                  style={{
+                    background: colors.gradient,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: `0 4px 20px ${darkMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(123, 58, 237, 0.2)'}`,
+                  }}
+                >
+                  {t("With Confidence", "بثقة")}
+                </span>
+              </div>
+            </div>
 
+            {/* Description */}
             <p 
-              className={`hero-description text-lg sm:text-xl max-w-3xl mx-auto mb-8`}
+              className={`hero-description text-xl sm:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed`}
               style={{ color: colors.textSecondary }}
             >
               {t(
@@ -715,50 +895,72 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
               )}
             </p>
 
-            <div className="hero-buttons flex flex-col sm:flex-row gap-4 justify-center">
+            {/* Buttons */}
+            <div className="hero-buttons flex flex-col sm:flex-row gap-6 justify-center">
               <button
                 onClick={goToRegister}
-                className={`px-8 py-4 rounded-lg font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                className={`group px-10 py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:shadow-2xl hover:scale-105 transition-all duration-500 relative overflow-hidden`}
                 style={{
-                  background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentHover})`,
+                  background: colors.gradient,
                   color: 'white',
+                  boxShadow: `0 20px 60px ${darkMode ? 'rgba(167, 139, 250, 0.4)' : 'rgba(123, 58, 237, 0.3)'}`,
                 }}
               >
-                {t("Start Now", "ابدأ الآن")} <ArrowRight className="w-5 h-5" />
+                <span className="relative z-10">{t("Start Now", "ابدأ الآن")}</span>
+                <ArrowRight className="w-6 h-6 relative z-10 group-hover:translate-x-2 transition-transform" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-100 transition-transform duration-700"></div>
               </button>
 
               <button
                 onClick={() => handleScrollTo("process")}
-                className={`px-8 py-4 rounded-lg font-semibold border transition-all duration-300`}
+                className={`px-10 py-5 rounded-2xl font-bold border transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
                 style={{
                   backgroundColor: colors.cardBg,
                   borderColor: colors.border,
                   color: colors.textPrimary,
                 }}
               >
-                {t("Learn More", "المزيد")}
+                <span className="relative z-10 flex items-center gap-3">
+                  {t("Learn More", "المزيد")}
+                  <ChevronRight className={`w-5 h-5 group-hover:translate-x-1 transition-transform ${isArabic ? 'rotate-180' : ''}`} />
+                </span>
               </button>
+            </div>
+
+            {/* Scroll indicator */}
+            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+              <div className="w-6 h-10 rounded-full border-2 flex justify-center"
+                style={{ borderColor: colors.accent }}>
+                <div className="w-1 h-3 rounded-full mt-2 animate-pulse"
+                  style={{ backgroundColor: colors.accent }}></div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* PROCESS - Content visible from start */}
-        <section id="process" className="py-20 px-4 sm:px-6 lg:px-8">
+        {/* PROCESS SECTION */}
+        <section id="process" className="py-24 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <h2 
-              className={`text-4xl font-bold text-center mb-4`}
-              style={{ color: colors.textPrimary }}
-            >
-              {t("Our 5-Stage Success Process", "عملية النجاح المكونة من 5 مراحل")}
-            </h2>
-            <p 
-              className={`text-center mb-16`}
-              style={{ color: colors.textSecondary }}
-            >
-              {t("A proven method to take you from graduate to confident professional.", "طريقة مجربة لتحويل الخريج إلى محترف واثق.")}
-            </p>
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 mx-auto"
+                style={{ background: colors.gradient }}>
+                <Target className="w-10 h-10 text-white" />
+              </div>
+              <h2 
+                className="text-5xl font-bold mb-6"
+                style={{ color: colors.textPrimary }}
+              >
+                {t("Our 5-Stage Success Process", "عملية النجاح المكونة من 5 مراحل")}
+              </h2>
+              <p 
+                className="text-xl max-w-3xl mx-auto"
+                style={{ color: colors.textSecondary }}
+              >
+                {t("A proven method to take you from graduate to confident professional.", "طريقة مجربة لتحويل الخريج إلى محترف واثق.")}
+              </p>
+            </div>
 
-            <div className="space-y-8">
+            <div className="space-y-10">
               {STAGES.map((stage, index) => (
                 <StageItem
                   key={index}
@@ -772,25 +974,37 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
           </div>
         </section>
 
-        {/* BENEFITS - Content visible from start */}
+        {/* BENEFITS SECTION */}
         <section 
           id="benefits" 
-          className={`py-20 px-4 sm:px-6 lg:px-8`}
+          className="py-24 px-4 sm:px-6 lg:px-8 relative"
           style={{
             backgroundColor: colors.bgTertiary,
           }}
         >
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `radial-gradient(${colors.accent} 1px, transparent 1px)`,
+              backgroundSize: '50px 50px',
+            }}></div>
+          </div>
+
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="grid md:grid-cols-2 gap-16 items-center">
               <div className={isArabic ? 'text-right' : 'text-left'}>
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-8"
+                  style={{ background: colors.gradient }}>
+                  <Sparkles className="w-10 h-10 text-white" />
+                </div>
                 <h2 
-                  className={`text-4xl font-bold mb-6`}
+                  className="text-5xl font-bold mb-8"
                   style={{ color: colors.textPrimary }}
                 >
                   {t("Why Choose Our Program?", "لماذا تختار برنامجنا؟")}
                 </h2>
                 <p 
-                  className={`mb-6`}
+                  className="text-xl mb-10 leading-relaxed"
                   style={{ color: colors.textSecondary }}
                 >
                   {t("We guide you through every step, ensuring you are fully job-ready.", "نرشدك في كل خطوة لضمان جاهزيتك لسوق العمل.")}
@@ -809,120 +1023,186 @@ const StageItem = React.memo(({ stage, index, isArabic, darkMode }) => {
                 </div>
               </div>
 
-              <div>
+              <div className="relative">
                 <div 
-                  className={`p-8 rounded-2xl shadow-lg border`}
+                  className="p-10 rounded-3xl shadow-2xl border backdrop-blur-sm"
                   style={{
                     backgroundColor: colors.cardBg,
                     borderColor: colors.border,
+                    boxShadow: `0 30px 80px ${colors.shadowStrong}`,
                   }}
                 >
-                  <h3 
-                    className={`text-2xl font-bold mb-4`}
-                    style={{ color: colors.textPrimary }}
-                  >
-                    {t("What You'll Achieve", "ما الذي ستحققه")}
-                  </h3>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                      style={{ background: colors.gradient }}>
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 
+                      className="text-3xl font-bold"
+                      style={{ color: colors.textPrimary }}
+                    >
+                      {t("What You'll Achieve", "ما الذي ستحققه")}
+                    </h3>
+                  </div>
+                  
                   <ul 
-                    className={`space-y-3`}
+                    className="space-y-6"
                     style={{ color: colors.textSecondary }}
                   >
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: colors.accent }} />
-                      <span>{t("Job-ready portfolio", "بورتفوليو جاهز للعمل")}</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: colors.accent }} />
-                      <span>{t("Professional networking skills", "مهارات التواصل المهني")}</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: colors.accent }} />
-                      <span>{t("Interview confidence", "ثقة في المقابلات")}</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: colors.accent }} />
-                      <span>{t("Career path clarity", "وضوح المسار المهني")}</span>
-                    </li>
+                    {[
+                      { text: t("Job-ready portfolio", "بورتفوليو جاهز للعمل"), icon: "🎯" },
+                      { text: t("Professional networking skills", "مهارات التواصل المهني"), icon: "🤝" },
+                      { text: t("Interview confidence", "ثقة في المقابلات"), icon: "💪" },
+                      { text: t("Career path clarity", "وضوح المسار المهني"), icon: "✨" },
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex items-center gap-4 p-4 rounded-xl hover:scale-[1.02] transition-transform duration-300"
+                        style={{ backgroundColor: `${colors.border}10` }}>
+                        <span className="text-2xl">{item.icon}</span>
+                        <span className="text-lg font-medium" style={{ color: colors.textPrimary }}>{item.text}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
+                
+                {/* Floating element */}
+                <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full opacity-10 animate-float"
+                  style={{ background: colors.gradient, animationDelay: '1s' }}></div>
+                <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-10 animate-float"
+                  style={{ background: colors.gradient, animationDelay: '2s' }}></div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 text-center">
+        {/* CTA SECTION */}
+        <section className="py-24 px-4 sm:px-6 lg:px-8 text-center">
           <div 
-            className={`max-w-3xl mx-auto rounded-3xl p-12 border`}
+            className="max-w-4xl mx-auto rounded-3xl p-16 border relative overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${colors.bgTertiary}, ${darkMode ? `${colors.accent}20` : `${colors.accent}10`})`,
               borderColor: colors.border,
+              boxShadow: `0 30px 100px ${colors.shadowStrong}`,
             }}
           >
-            <h2 
-              className={`text-4xl font-bold mb-4`}
-              style={{ color: colors.textPrimary }}
-            >
-              {t("Ready to Launch Your Career?", "هل أنت جاهز لإطلاق مسيرتك؟")}
-            </h2>
-            <p 
-              className={`text-xl mb-8`}
-              style={{ color: colors.textSecondary }}
-            >
-              {t("Join us and start your successful journey today.", "انضم إلينا وابدأ رحلتك الناجحة اليوم.")}
-            </p>
+            {/* Background elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 animate-float"
+              style={{ background: colors.gradient, animationDelay: '0.5s' }}></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full opacity-10 animate-float"
+              style={{ background: colors.gradient, animationDelay: '1.5s' }}></div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={goToRegister} 
-                className={`px-10 py-4 rounded-lg font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                style={{
-                  background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentHover})`,
-                  color: 'white',
-                }}
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-8 mx-auto"
+                style={{ background: colors.gradient }}>
+                <Rocket className="w-12 h-12 text-white" />
+              </div>
+              <h2 
+                className="text-5xl font-bold mb-6"
+                style={{ color: colors.textPrimary }}
               >
-                {t("Start Now", "ابدأ الآن")} <ArrowRight className="w-5 h-5" />
-              </button>
+                {t("Ready to Launch Your Career?", "هل أنت جاهز لإطلاق مسيرتك؟")}
+              </h2>
+              <p 
+                className="text-2xl mb-12 max-w-3xl mx-auto leading-relaxed"
+                style={{ color: colors.textSecondary }}
+              >
+                {t("Join us and start your successful journey today.", "انضم إلينا وابدأ رحلتك الناجحة اليوم.")}
+              </p>
 
-              <button 
-                onClick={goToInstagram} 
-                className={`px-10 py-4 rounded-lg font-semibold border transition-all duration-300`}
-                style={{
-                  backgroundColor: colors.cardBg,
-                  borderColor: colors.border,
-                  color: colors.textPrimary,
-                }}
-              >
-                {t("Contact Us", "تواصل معنا")}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <button 
+                  onClick={goToRegister} 
+                  className="group px-12 py-6 rounded-2xl font-bold text-white hover:scale-105 transition-all duration-500 relative overflow-hidden"
+                  style={{
+                    background: colors.gradient,
+                    boxShadow: `0 20px 60px ${darkMode ? 'rgba(167, 139, 250, 0.4)' : 'rgba(123, 58, 237, 0.3)'}`,
+                  }}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    {t("Start Now", "ابدأ الآن")}
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-100 transition-transform duration-700"></div>
+                </button>
+
+                <button 
+                  onClick={goToInstagram} 
+                  className="px-12 py-6 rounded-2xl font-bold border hover:scale-105 transition-all duration-500 group"
+                  style={{
+                    backgroundColor: colors.cardBg,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  }}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    {t("Contact Us", "تواصل معنا")}
+                    <MessageSquare className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
         {/* FOOTER */}
         <footer 
-          className={`py-12 text-center border-t`}
+          className="py-16 text-center border-t"
           style={{
             backgroundColor: colors.bgTertiary,
             borderColor: colors.border,
           }}
         >
-          <p style={{ color: colors.textSecondary }}>&copy; 2025 LAVQ. {t("All rights reserved.", "جميع الحقوق محفوظة.")}</p>
-          <div className="mt-4 flex justify-center gap-6">
-            <a 
-              href="#" 
-              className={`hover:underline`}
-              style={{ color: colors.accent }}
-            >
-              {t("Privacy Policy", "سياسة الخصوصية")}
-            </a>
-            <a 
-              href="#" 
-              className={`hover:underline`}
-              style={{ color: colors.accent }}
-            >
-              {t("Terms of Service", "شروط الخدمة")}
-            </a>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Logo in footer */}
+            <div className="mb-8">
+              <img 
+                src="/lavq.png" 
+                alt="LAVQ" 
+                className="w-32 h-auto mx-auto mb-6"
+                style={{
+                  filter: colors.logoFilter,
+                }}
+              />
+            </div>
+            
+            <p className="text-lg mb-8" style={{ color: colors.textSecondary }}>
+              {t("Transforming careers, one developer at a time.", "نحول المسارات المهنية، مبرمج واحد في كل مرة.")}
+            </p>
+            
+            <p style={{ color: colors.textSecondary }} className="mb-8">
+              &copy; 2025 LAVQ. {t("All rights reserved.", "جميع الحقوق محفوظة.")}
+            </p>
+            
+            <div className="flex justify-center gap-8">
+              <a 
+                href="#" 
+                className="hover:underline font-medium transition-all duration-300 hover:scale-110"
+                style={{ color: colors.accent }}
+              >
+                {t("Privacy Policy", "سياسة الخصوصية")}
+              </a>
+              <a 
+                href="#" 
+                className="hover:underline font-medium transition-all duration-300 hover:scale-110"
+                style={{ color: colors.accent }}
+              >
+                {t("Terms of Service", "شروط الخدمة")}
+              </a>
+            </div>
+            
+            {/* Social media */}
+            <div className="mt-8 flex justify-center gap-6">
+              <button
+                onClick={goToInstagram}
+                className="w-12 h-12 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300"
+                style={{
+                  backgroundColor: colors.cardBg,
+                  color: colors.accent,
+                  boxShadow: `0 4px 16px ${colors.shadow}`,
+                }}
+              >
+                <MessageSquare className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </footer>
       </div>
